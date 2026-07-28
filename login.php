@@ -1,43 +1,69 @@
 <?php
+
 session_start();
-include("../includes/config.php");
+
+include("includes/config.php");
 
 if(isset($_POST['login']))
 {
-    $email = mysqli_real_escape_string($conn,$_POST['email']);
-    $password = $_POST['password'];
 
-    $sql = mysqli_query($conn,"SELECT * FROM users
-    WHERE email='$email' AND role='admin'");
+$email=mysqli_real_escape_string($conn,$_POST['email']);
 
-    if(mysqli_num_rows($sql)>0)
-    {
-        $admin = mysqli_fetch_assoc($sql);
+$password=$_POST['password'];
 
-        if(password_verify($password,$admin['password']))
-        {
-            $_SESSION['admin_id']=$admin['id'];
-            $_SESSION['admin_name']=$admin['full_name'];
+$sql=mysqli_query($conn,"SELECT * FROM users
+WHERE email='$email'");
 
-            header("Location: dashboard.php");
-            exit();
-        }
-        else
-        {
-            echo "<script>alert('Wrong Password');</script>";
-        }
-    }
-    else
-    {
-        echo "<script>alert('Admin Not Found');</script>";
-    }
+if(mysqli_num_rows($sql)>0)
+{
+
+$user=mysqli_fetch_assoc($sql);
+
+if($user['is_verified']==0)
+{
+
+echo "<script>alert('Please verify your email first');</script>";
+
 }
-?>
+else
+{
 
+if(password_verify($password,$user['password']))
+{
+
+$_SESSION['student_id']=$user['id'];
+
+$_SESSION['student_name']=$user['full_name'];
+
+header("Location: student/dashboard.php");
+
+exit();
+
+}
+else
+{
+
+echo "<script>alert('Incorrect Password');</script>";
+
+}
+
+}
+
+}
+else
+{
+
+echo "<script>alert('Email Not Registered');</script>";
+
+}
+
+}
+
+?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Login</title>
+    <title>Student Login</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -53,7 +79,7 @@ if(isset($_POST['login']))
 <div class="card shadow">
 
 <div class="card-header text-center">
-<h3>Admin Login</h3>
+<h3>Student Login</h3>
 </div>
 
 <div class="card-body">
@@ -61,17 +87,34 @@ if(isset($_POST['login']))
 <form method="POST">
 
 <div class="mb-3">
+
 <label>Email</label>
-<input type="email" name="email" class="form-control" required>
+
+<input type="email"
+name="email"
+class="form-control"
+required>
+
 </div>
 
 <div class="mb-3">
+
 <label>Password</label>
-<input type="password" name="password" class="form-control" required>
+
+<input type="password"
+name="password"
+class="form-control"
+required>
+
 </div>
 
-<button type="submit" name="login" class="btn btn-primary w-100">
+<button
+type="submit"
+name="login"
+class="btn btn-primary w-100">
+
 Login
+
 </button>
 
 </form>
